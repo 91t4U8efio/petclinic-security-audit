@@ -25,7 +25,8 @@ public class SecurityConfig {
 
 		http.authorizeHttpRequests(authorize -> authorize.dispatcherTypeMatchers(FORWARD, ERROR)
 			.permitAll()
-			// .requestMatchers("/customers/**").hasRole("USER")
+			.requestMatchers("/customers/**")
+			.hasRole("USER")
 			.anyRequest()
 			.permitAll());
 
