@@ -17,14 +17,51 @@
 package org.springframework.samples.petclinic.system;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 @Controller
 class WelcomeController {
 
+	private final GeolocationIoClient client = new GeolocationIoClient("https://api.ipgeolocation.io");
+
 	@GetMapping("/")
-	public String welcome() {
+	public String welcome(Model model) {
+		model.addAttribute("welcomeMessage", readWelcomeMessage());
+		model.addAttribute("astronomyData", getAstronomicalData());
 		return "welcome";
+	}
+
+	private String readWelcomeMessage() {
+		String filename = "/welcome_message.txt";
+
+		URL loc = getClass().getResource(filename);
+		if (Objects.nonNull(loc)) {
+			try {
+				System.out.printf("reading file %s %n", filename);
+				return new String(loc.openStream().readAllBytes(), StandardCharsets.UTF_8);
+			}
+			catch (IOException e) {
+				System.out.printf("could not open '%s' data%n", filename);
+			}
+		}
+		else {
+			System.out.printf("resource %s not available%n", filename);
+		}
+
+		return "Welcome";
+	}
+
+	private String getAstronomicalData() {
+		GeolocationIoClient.ResponseDto responseDto = client.fetchAstronomyData("New York, US");
+		var data = String.format("%s", responseDto);
+		System.out.printf("read astronomy data: %s %n", data);
+		return data;
 	}
 
 }

@@ -18,4 +18,6 @@ springboot doesn't support automatic initialization of multiple datasources.
 - Add a fake "diagnostics" page just for some interesting demo content.
 - Add Basic user/password auth to `/customers/*` endpoints.
   - The username is `user` and the password is `password`.
+- Add outbound service call to an astrology service on the welcome page
+- Add a file read action to get the welcome message for the welcome page.
 
