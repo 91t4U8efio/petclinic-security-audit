@@ -21,7 +21,7 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain web(HttpSecurity http) throws Exception {
 
-		http.httpBasic(withDefaults()).formLogin(withDefaults());
+		http.httpBasic(withDefaults()).formLogin(withDefaults()).csrf(c -> c.disable());
 
 		http.authorizeHttpRequests(authorize -> authorize.dispatcherTypeMatchers(FORWARD, ERROR)
 			.permitAll()
