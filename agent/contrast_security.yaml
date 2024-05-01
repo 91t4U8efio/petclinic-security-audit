@@ -1,0 +1,12 @@
+api: 
+  url: https://eval.contrastsecurity.com/Contrast
+  api_key: IMDq4X0K8BzCvwUt3iEyn0TV4Ti3loMD
+  service_key: 9I0QA3B1WM76Y23U
+  user_name: agent_6a3073a5-5e68-40e5-9d7d-165340fff15a@3fDemo
+observe:
+  enable: true
+application:
+# name: PetClinic-bjs-CKO
+  name: PetClinic-bjs
+# name: PetClinic-bjs-demo
+  metadata: commonName="PetClinic-BJS",country="US",locality="Chicago",organizationUnit="Security",team="AppSec"
