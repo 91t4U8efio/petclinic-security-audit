@@ -44,6 +44,12 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 /**
  * @author Juergen Hoeller
  * @author Ken Krebs
@@ -57,8 +63,11 @@ class OwnerController {
 
 	private final OwnerRepository owners;
 
-	public OwnerController(OwnerRepository clinicService) {
+	private final DataSource dataSource;
+
+	public OwnerController(OwnerRepository clinicService, @Qualifier("petclinicDataSource") DataSource dataSource) {
 		this.owners = clinicService;
+		this.dataSource = dataSource;
 	}
 
 	@InitBinder
@@ -177,6 +186,19 @@ class OwnerController {
 		Owner owner = this.owners.findById(ownerId);
 		mav.addObject(owner);
 		return mav;
+	}
+
+	/**
+	 * Extra Contrast added endpoint to show sql injection vulnerability.
+	 * @param customerId The id to delete.
+	 * @throws SQLException if sql execute fails
+	 */
+	@GetMapping("/owners/{ownerId}/delete")
+	public String deleteCustomer(@PathVariable("ownerId") String ownerId) throws SQLException, IOException {
+		try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+			statement.execute("DELETE FROM owners WHERE id = " + ownerId);
+		}
+		return "welcome";
 	}
 
 }
