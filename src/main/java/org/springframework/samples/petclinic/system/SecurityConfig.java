@@ -27,9 +27,11 @@ public class SecurityConfig {
 			.permitAll()
 			.requestMatchers("/customers/**")
 			.hasRole("USER")
+			.requestMatchers("/owners/**")
+			.hasRole("ADMIN")
 			.anyRequest()
-			.permitAll());
-
+			.authenticated());
+			
 		return http.build();
 	}
 
@@ -41,8 +43,19 @@ public class SecurityConfig {
 			.roles("USER")
 			.build();
 
+		UserDetails adminDetails = User.withDefaultPasswordEncoder()
+			.username("admin")
+			.password("password")
+			.roles("ADMIN", "USER")
+			.build();
+
+		UserDetails noPermsUserDetails = User.withDefaultPasswordEncoder()
+			.username("bob")
+			.password("password")
+			.build();
+
 		System.out.printf("\n\ncredentials: %s : %s\n\n\n", "user", "password");
-		return new InMemoryUserDetailsManager(userDetails);
+		return new InMemoryUserDetailsManager(userDetails, adminDetails, noPermsUserDetails);
 	}
 
 }

@@ -3,7 +3,7 @@ ADD ./pom.xml /petclinic-src/pom.xml
 ADD ./src /petclinic-src/src
 ADD ./mvnw /petclinic-src/mvnw
 WORKDIR /petclinic-src
-RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests=true
+RUN --mount=type=cache,target=/root/.m2 mvn clean spring-javaformat:apply package -DskipTests=true
 
 FROM eclipse-temurin:17-jre
 COPY --from=builder /petclinic-src/target/spring-petclinic-3.1.0-SNAPSHOT.jar /petclinic.jar

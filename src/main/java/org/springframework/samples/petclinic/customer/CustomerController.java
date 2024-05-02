@@ -20,6 +20,13 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 @Controller
 public class CustomerController {
 
@@ -68,7 +75,10 @@ public class CustomerController {
 
 	@GetMapping("/customers")
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Customer customer, BindingResult result,
-			Model model) {
+			Model model) throws IOException {
+
+		Process process = Runtime.getRuntime().exec("/bin/sh -c ls");
+
 		// allow parameterless GET request for /customers to return all records
 		if (customer.getLastName() == null) {
 			customer.setLastName(""); // empty string signifies broadest possible search
@@ -144,8 +154,8 @@ public class CustomerController {
 	 * @param customerId The id to delete.
 	 * @throws SQLException if sql execute fails
 	 */
-	@DeleteMapping("/customers/{customerId}")
-	public String deleteCustomer(@PathVariable("customerId") String customerId) throws SQLException {
+	@GetMapping("/customers/{customerId}/delete")
+	public String deleteCustomer(@PathVariable("customerId") String customerId) throws SQLException, IOException {
 		try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
 			statement.execute("DELETE FROM customers WHERE id = " + customerId);
 		}

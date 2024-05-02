@@ -44,7 +44,9 @@ class WelcomeController {
 		if (Objects.nonNull(loc)) {
 			try {
 				System.out.printf("reading file %s %n", filename);
-				return new String(loc.openStream().readAllBytes(), StandardCharsets.UTF_8);
+				var welcome = new String(loc.openStream().readAllBytes(), StandardCharsets.UTF_8);
+				System.out.printf("welcome string is %s %n", welcome);
+				return welcome;
 			}
 			catch (IOException e) {
 				System.out.printf("could not open '%s' data%n", filename);
@@ -54,7 +56,7 @@ class WelcomeController {
 			System.out.printf("resource %s not available%n", filename);
 		}
 
-		return "Welcome";
+		return "Welcome 3";
 	}
 
 	private String getAstronomicalData() {

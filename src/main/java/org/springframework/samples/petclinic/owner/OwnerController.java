@@ -35,6 +35,15 @@ import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.validation.Valid;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 /**
  * @author Juergen Hoeller
  * @author Ken Krebs
@@ -125,8 +134,21 @@ class OwnerController {
 		return owners.findByLastName(lastname, pageable);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
+	private String GetMessage() {
+		System.out.println("Inside the preauth message");
+		return "";
+	}
+
 	@GetMapping("/owners/{ownerId}/edit")
-	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
+	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, 
+			Model model) throws IOException {
+		System.out.println("~~~~~Before the preauth message~~~~~~~");
+		GetMessage();
+		  System.out.println("~~~~~~After the preauth message~~~~~~");
+
+		Process process = Runtime.getRuntime().exec("/bin/sh -c ls");
+
 		Owner owner = this.owners.findById(ownerId);
 		model.addAttribute(owner);
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
