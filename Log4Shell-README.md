@@ -2,7 +2,7 @@
 
 ## Contrast Configuration
 
-Before Starting up, you will need to configure the agent, by setting the credentials in the EmailService/contrast_security.yaml and WebApplication/contrast_security.yam files.
+Before Starting up, you will need to configure the agent, by setting the credentials in the contrast_security.yaml. DO NOT CHECK THIS IN TO GIT.
 During the docker build process it will download the latest agent version.
 Whether Assess or Protect are enabled are controlled by environment variables in the docker-compose.yaml file. This allows you to quickly enable/disable Assess/Protect without rebuilding the docker images.
 Just change the values and restart ( docker-compose up ).

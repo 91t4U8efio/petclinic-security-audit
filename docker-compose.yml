@@ -46,7 +46,7 @@ services:
   petclinic-app:
     environment:
       CONTRAST__SERVER__NAME: "Petclinic"
-      CONTRAST__APPLICATION__NAME: "Email-Service"
+      CONTRAST__APPLICATION__NAME: "Web-Application"
       CONTRAST__ASSESS__ENABLE: "true"
       CONTRAST__PROTECT__ENABLE: "true"
     image: local/petclinic:latest
