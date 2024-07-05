@@ -2,8 +2,8 @@ DROP TABLE customers IF EXISTS;
 
 CREATE TABLE customers (
   id         INTEGER IDENTITY PRIMARY KEY,
-  first_name VARCHAR(30),
-  last_name  VARCHAR_IGNORECASE(30),
+  first_name VARCHAR(255),
+  last_name  VARCHAR_IGNORECASE(255),
   address    VARCHAR(255),
   city       VARCHAR(80),
   telephone  VARCHAR(20)

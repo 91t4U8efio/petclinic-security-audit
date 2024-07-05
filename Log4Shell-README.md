@@ -1,4 +1,4 @@
-## Setup
+
 
 ## Contrast Configuration
 
@@ -7,12 +7,14 @@ During the docker build process it will download the latest agent version.
 Whether Assess or Protect are enabled are controlled by environment variables in the docker-compose.yaml file. This allows you to quickly enable/disable Assess/Protect without rebuilding the docker images.
 Just change the values and restart ( docker-compose up ).
 
+## Setup
+
 
 Run the services up using docker ( from the root of the project )
 ```docker-compose up```
 
 Once up, login to the log4shell service and open socat using the following command
-```docker exec -it spring-petclinic-log4shell-service-1 bash -c "/ListenForShell.sh"```
+```docker exec -it Log4ShellServer bash -c "/ListenForShell.sh"```
 
 Then open a browser and access Petclinic
 http://localhost:8080

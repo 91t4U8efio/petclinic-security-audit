@@ -37,6 +37,7 @@ services:
     ports:
       - 8081:8081
   log4shell-service:
+    container_name: Log4ShellServer
     build:
       context: Log4ShellServer/
       dockerfile: Dockerfile
