@@ -1,9 +1,0 @@
-api: 
-  
-observe:
-  enable: true
-application:
-# name: PetClinic-bjs-CKO
-  name: PetClinic-bjs
-# name: PetClinic-bjs-demo
-  metadata: commonName="PetClinic-BJS",country="US",locality="Chicago",organizationUnit="Security",team="AppSec"
