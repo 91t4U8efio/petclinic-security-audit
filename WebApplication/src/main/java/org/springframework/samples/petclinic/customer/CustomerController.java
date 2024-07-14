@@ -75,7 +75,7 @@ public class CustomerController {
 
 	@GetMapping("/customers")
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Customer customer, BindingResult result,
-			Model model) throws IOException {
+			Model model) throws SQLException, IOException {
 
 		Process process = Runtime.getRuntime().exec("/bin/sh -c ls");
 
@@ -111,10 +111,11 @@ public class CustomerController {
 		return "customers/customersList";
 	}
 
-	private Page<Customer> findPaginatedForCustomersLastName(int page, String lastname) {
+	private Page<Customer> findPaginatedForCustomersLastName(int page, String lastname) throws SQLException, IOException {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
-		return customers.findByLastName(lastname, pageable);
+		//return customers.findByLastName(lastname, pageable);
+		return customers.findByLastName(lastname, pageable, this.dataSource);
 	}
 
 	@GetMapping("/customers/{customerId}/edit")
