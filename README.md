@@ -9,6 +9,7 @@
     - The Owner object was copied to a Customer object.  The Customer object is considered PII.
     These objects are accessible via the `/customers/..` REST path.
 - Added a sample SQLI vulnerability on the `DELETE /customers/{customerId}` REST path.
+- Added a sample SQLI vulnerability on the `GET /customers` REST path. Use payload `' or 1=1; # `.
 - modified docker-compose.yml to run an Agent and read config from the local `/agent` dir where people
 can change Agent binaries and configs without needing to change any docker-compose config or other code/config
 files.
