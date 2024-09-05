@@ -31,6 +31,7 @@ services:
       CONTRAST__APPLICATION__NAME: "Email-Service"
       CONTRAST__ASSESS__ENABLE: "true"
       CONTRAST__PROTECT__ENABLE: "true"
+      CONTRAST__OBSERVE__ENABLE: "true"
     build:
       context: ./
       dockerfile: EmailService/Dockerfile
@@ -50,6 +51,7 @@ services:
       CONTRAST__APPLICATION__NAME: "Web-Application"
       CONTRAST__ASSESS__ENABLE: "true"
       CONTRAST__PROTECT__ENABLE: "true"
+      CONTRAST__OBSERVE__ENABLE: "true"
     image: local/petclinic:latest
     container_name: petclinic-app
     build:
