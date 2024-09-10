@@ -29,7 +29,7 @@ Add agent credentials to the yaml file in the “agent” folder.
 
 Start the app in a set of docker containers (1 app + 1 database server with 2 db instances) with the following commands:
 
-docker compose build
+docker compose build \
 docker compose up 
 
 Browse to localhost:8080
