@@ -1,7 +1,7 @@
 package org.springframework.samples.emailservice;
 
 
-public class Owner {
+public class OwnerDTO {
 
 	private String firstName;
 
@@ -16,10 +16,10 @@ public class Owner {
 
 	private String email;
 
-	public Owner() {
+	public OwnerDTO() {
 	}
 
-	public Owner(String firstName, String lastName, String address, String city, String telephone, String email) {
+	public OwnerDTO(String firstName, String lastName, String address, String city, String telephone, String email) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.address = address;
