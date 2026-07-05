@@ -16,7 +16,8 @@
 | LOW      | 6 |
 | **Всего** | **42** |
 
-(После удаления дубликатов — 42 уникальные уязвимости вместо 60)
+(42 уникальные уязвимости после удаления дубликатов. Log4ShellServer полностью удалён из репозитория.)
+Повторный аудит (6-й раунд) — **CHISTO**, уязвимостей не обнаружено.
 
 ---
 
@@ -36,7 +37,7 @@
 | 8 | Insecure Deserialization | `EmailService/EmailController.java` | Эндпоинт `/deserialize` удалён |
 | 9 | Deserialization Gadget | `EmailService/model/EmailData.java` | `readObject()` удалён |
 | 10 | JNDI RCE (trustURLCodebase) | `buildandrun.sh`, `Dockerfile` | Флаг удалён из обоих файлов |
-| 11 | Log4Shell Exploit Server | `pom.xml` | Модуль `Log4ShellServer` исключён из сборки |
+| 11 | Log4Shell Exploit Server | `Log4ShellServer/` | Модуль полностью удалён из репозитория |
 | 12 | H2 RCE (CVE-2022-45865) | `EmailService/pom.xml` | H2 1.4.197 → 2.3.232 |
 | 13 | SSH приватный ключ | `EmailService/dummy-data/id_ed25519` | Файлы удалены |
 
