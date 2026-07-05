@@ -1,4 +1,4 @@
-version: "3.1"
+
 
 services:
   db-1:
@@ -36,7 +36,6 @@ services:
       dockerfile: EmailService/Dockerfile
     ports:
       - 8081:8081
-      - 5005:5005
   webapplication:
     environment:
       CONTRAST__SERVER__NAME: "Petclinic"
