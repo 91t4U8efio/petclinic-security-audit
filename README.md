@@ -38,9 +38,8 @@ Browse to localhost:8080
 There are 3 different users with varying levels of permissions. 
 Unfortunately, there isn’t a logout button yet, so in order to change your user, you must restart the server and log in again.
 
-- Admin: U “admin” P “password” - this is the only role that has access to /owners endpoints
-- User: U “user” P “password” - this is the role that has access to /customers endpoints
-- No-role User: U “bob” P “password”
+- Admin role — access to /owners endpoints (password via PETCLINIC_ADMIN_PASSWORD env)
+- User role — access to /customers endpoints (password via PETCLINIC_USER_PASSWORD env)
 
 
 

@@ -16,6 +16,7 @@
 
 package org.springframework.samples.petclinic.system;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,11 @@ import java.util.Objects;
 @Controller
 class WelcomeController {
 
-	private final GeolocationIoClient client = new GeolocationIoClient("https://api.ipgeolocation.io");
+	private final GeolocationIoClient client;
+
+	public WelcomeController(@Value("${geolocation.api.key}") String apiKey) {
+		this.client = new GeolocationIoClient("https://api.ipgeolocation.io", apiKey);
+	}
 
 	@GetMapping("/")
 	public String welcome(Model model) {

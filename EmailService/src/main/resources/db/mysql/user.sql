@@ -4,6 +4,7 @@ ALTER DATABASE petclinic
   DEFAULT CHARACTER SET utf8
   DEFAULT COLLATE utf8_general_ci;
 
+-- WARNING: Dev-only password. In production, use environment variables.
 CREATE USER 'petclinic'@'%' IDENTIFIED BY 'petclinic';
 GRANT ALL PRIVILEGES ON petclinic.* TO 'petclinic'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;

@@ -17,8 +17,10 @@ package org.springframework.samples.petclinic.owner;
 
 import java.util.List;
 import java.util.Map;
+import java.sql.PreparedStatement;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,20 +38,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.validation.Valid;
 
-import org.springframework.security.access.prepost.PreAuthorize;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author Juergen Hoeller
@@ -148,20 +141,8 @@ class OwnerController {
 		return owners.findByLastName(lastname, pageable);
 	}
 
-	@PreAuthorize("hasRole('ADMIN')")
-	private String GetMessage() {
-		System.out.println("Inside the preauth message");
-		return "";
-	}
-
 	@GetMapping("/owners/{ownerId}/edit")
-	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) throws IOException {
-		System.out.println("~~~~~Before the preauth message~~~~~~~");
-		GetMessage();
-		System.out.println("~~~~~~After the preauth message~~~~~~");
-
-		Process process = Runtime.getRuntime().exec("/bin/sh -c ls");
-
+	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
 		Owner owner = this.owners.findById(ownerId);
 		model.addAttribute(owner);
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
@@ -197,10 +178,13 @@ class OwnerController {
 	 * @param customerId The id to delete.
 	 * @throws SQLException if sql execute fails
 	 */
-	@GetMapping("/owners/{ownerId}/delete")
-	public String deleteCustomer(@PathVariable("ownerId") String ownerId) throws SQLException, IOException {
-		try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-			statement.execute("DELETE FROM owners WHERE id = " + ownerId);
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/owners/{ownerId}/delete")
+	public String deleteCustomer(@PathVariable("ownerId") int ownerId) throws SQLException {
+		try (Connection connection = dataSource.getConnection();
+				PreparedStatement statement = connection.prepareStatement("DELETE FROM owners WHERE id = ?")) {
+			statement.setInt(1, ownerId);
+			statement.execute();
 		}
 		return "welcome";
 	}

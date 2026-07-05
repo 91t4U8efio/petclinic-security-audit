@@ -2,6 +2,7 @@ package org.springframework.samples.petclinic.customer;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,17 +16,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Controller
 public class CustomerController {
@@ -75,9 +69,7 @@ public class CustomerController {
 
 	@GetMapping("/customers")
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Customer customer, BindingResult result,
-			Model model) throws SQLException, IOException {
-
-		Process process = Runtime.getRuntime().exec("/bin/sh -c ls");
+			Model model) {
 
 		// allow parameterless GET request for /customers to return all records
 		if (customer.getLastName() == null) {
@@ -111,11 +103,10 @@ public class CustomerController {
 		return "customers/customersList";
 	}
 
-	private Page<Customer> findPaginatedForCustomersLastName(int page, String lastname) throws SQLException, IOException {
+	private Page<Customer> findPaginatedForCustomersLastName(int page, String lastname) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
-		//return customers.findByLastName(lastname, pageable);
-		return customers.findByLastName(lastname, pageable, this.dataSource);
+		return customers.findByLastName(lastname, pageable);
 	}
 
 	@GetMapping("/customers/{customerId}/edit")
@@ -155,10 +146,13 @@ public class CustomerController {
 	 * @param customerId The id to delete.
 	 * @throws SQLException if sql execute fails
 	 */
-	@GetMapping("/customers/{customerId}/delete")
-	public String deleteCustomer(@PathVariable("customerId") String customerId) throws SQLException, IOException {
-		try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-			statement.execute("DELETE FROM customers WHERE id = " + customerId);
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/customers/{customerId}/delete")
+	public String deleteCustomer(@PathVariable("customerId") int customerId) throws SQLException {
+		try (Connection connection = dataSource.getConnection();
+				PreparedStatement statement = connection.prepareStatement("DELETE FROM customers WHERE id = ?")) {
+			statement.setInt(1, customerId);
+			statement.execute();
 		}
 		return "welcome";
 	}

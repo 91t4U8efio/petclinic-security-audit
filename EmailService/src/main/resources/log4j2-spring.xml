@@ -9,7 +9,7 @@
 
 		<Console name="Console-Extensions" target="SYSTEM_OUT">
 			<PatternLayout
-				pattern="%d %p %c{1.} [%t] ${spring:spring.application.name} %m%n" />
+				pattern="%d %p %c{1.} [%t] %m%n" />
 		</Console>
 
 			<File name="File" fileName="/tmp/application.log" append="true">

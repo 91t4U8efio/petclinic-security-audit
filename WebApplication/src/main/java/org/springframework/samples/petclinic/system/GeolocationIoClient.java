@@ -13,11 +13,12 @@ public class GeolocationIoClient {
 
 	private final RestTemplate client;
 
-	private final String apiKey = "8d6bc82c1a5d4d699477c530bb347055";
+	private final String apiKey;
 
-	public GeolocationIoClient(String baseUrl) {
+	public GeolocationIoClient(String baseUrl, String apiKey) {
 
 		this.baseUrl = baseUrl;
+		this.apiKey = apiKey;
 		this.client = new RestTemplateBuilder().requestFactory(SimpleClientHttpRequestFactory.class).build();
 	}
 

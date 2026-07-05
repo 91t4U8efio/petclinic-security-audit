@@ -17,13 +17,15 @@ package org.springframework.samples.petclinic.owner;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -54,6 +56,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
+
+	private static final Path ALLOWED_PHOTO_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
+	private static final Map<String, String> EXTENSION_MIME_TYPES = Map.of(
+		"jpg", "image/jpeg",
+		"jpeg", "image/jpeg",
+		"png", "image/png",
+		"gif", "image/gif",
+		"bmp", "image/bmp",
+		"webp", "image/webp"
+	);
+	private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif", "bmp", "webp");
+	private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 	private final OwnerRepository owners;
 
@@ -174,91 +188,99 @@ class PetController {
 								   @RequestParam("file") MultipartFile file,
 								   RedirectAttributes redirectAttributes) {
 		if (file.isEmpty()) {
-			// Handle empty file
 			redirectAttributes.addFlashAttribute("message", "Please select a file to upload.");
 			return "redirect:/owners/{ownerId}/pets/{petId}/uploadForm";
-		} else {
-			Owner owner = this.owners.findById(ownerId);
-			if (owner == null) {
-				throw new IllegalArgumentException("Owner ID not found: " + ownerId);
-			}
-			Pet pet = owner.getPet(petId);
-			if(pet.getPhotoPath()!=null ) {
-				System.out.println("PHTOTO SAVED : " + pet.getPhotoPath());
-			}
-			String fileName = file.getOriginalFilename();
-			Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
-			Path filePath = tmpDir.resolve(fileName);
-			System.out.println(filePath.toString());
-			pet.setPhotoPath(filePath.toString());
-
-			try {
-				Files.copy(
-					file.getInputStream(),
-					filePath,
-					StandardCopyOption.REPLACE_EXISTING);
-				this.owners.save(owner);
-			} catch (IOException e) {
-				// Handle the IOException
-				redirectAttributes.addFlashAttribute("message", "An error occurred while uploading the file.");
-				return "redirect:/owners/{ownerId}/pets/{petId}/uploadForm";
-			}
-
 		}
 
+		if (file.getSize() > MAX_FILE_SIZE) {
+			redirectAttributes.addFlashAttribute("message", "File size exceeds the maximum limit of 5 MB.");
+			return "redirect:/owners/{ownerId}/pets/{petId}/uploadForm";
+		}
 
-		// Get the owner and pet objects (you might need to fetch them from the database)
-		//Owner owner = ownerService.findOwnerById(ownerId);
-		//	Pet pet = petService.findPetById(petId);
+		String contentType = file.getContentType();
+		if (contentType == null || !contentType.startsWith("image/")) {
+			redirectAttributes.addFlashAttribute("message", "Only image files are allowed.");
+			return "redirect:/owners/{ownerId}/pets/{petId}/uploadForm";
+		}
 
-		// Save the file (e.g., to disk or a cloud storage service)
-		// ... your file saving logic here ...
+		Owner owner = this.owners.findById(ownerId);
+		if (owner == null) {
+			throw new IllegalArgumentException("Owner ID not found: " + ownerId);
+		}
+		Pet pet = owner.getPet(petId);
 
-		// Update the pet object with the file information (if needed)
-		// ...
+		String originalFilename = file.getOriginalFilename();
+		String extension = "";
+		if (originalFilename != null && originalFilename.contains(".")) {
+			String rawExt = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+			if (!ALLOWED_EXTENSIONS.contains(rawExt)) {
+				redirectAttributes.addFlashAttribute("message", "File type not allowed.");
+				return "redirect:/owners/{ownerId}/pets/{petId}/uploadForm";
+			}
+			extension = "." + rawExt;
+		}
+		String safeFileName = UUID.randomUUID() + extension;
+		Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
+		Path filePath = tmpDir.resolve(safeFileName).normalize();
 
-		// Redirect back to the pet page with a success message
+		if (!filePath.startsWith(tmpDir)) {
+			redirectAttributes.addFlashAttribute("message", "Invalid file path.");
+			return "redirect:/owners/{ownerId}/pets/{petId}/uploadForm";
+		}
+
+		pet.setPhotoPath(filePath.toString());
+
+		try {
+			Files.copy(
+				file.getInputStream(),
+				filePath,
+				StandardCopyOption.REPLACE_EXISTING);
+			this.owners.save(owner);
+		} catch (IOException e) {
+			redirectAttributes.addFlashAttribute("message", "An error occurred while uploading the file.");
+			return "redirect:/owners/{ownerId}/pets/{petId}/uploadForm";
+		}
+
 		redirectAttributes.addFlashAttribute("message", "File uploaded successfully!");
 		return "redirect:/owners/{ownerId}/pets/{petId}";
+	}
 
-
+	private String mimeTypeForPath(Path path) {
+		String name = path.getFileName().toString().toLowerCase();
+		int dotIdx = name.lastIndexOf('.');
+		if (dotIdx > 0) {
+			String ext = name.substring(dotIdx + 1);
+			String mime = EXTENSION_MIME_TYPES.get(ext);
+			if (mime != null) return mime;
+		}
+		return "application/octet-stream";
 	}
 
 	@GetMapping("/pets/getPhotoByPath")
 	public void showImageByPath(@RequestParam String photoPath, HttpServletResponse response) throws IOException {
-
-		Path path = Paths.get(photoPath);
-		byte[] imageBytes = Files.readAllBytes(path);
-
-		URLConnection connection = path.toFile().toURL().openConnection();
-		String mimeType = connection.getContentType();
-		response.setContentType(mimeType);
-		// Write the image bytes to the response output stream
-		try (OutputStream os = response.getOutputStream()) {
-			os.write(imageBytes);
-			os.flush();
-		}
+		response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not available");
 	}
 
 
 	@GetMapping("/pets/{petId}/image")
 	public void showImage(@PathVariable int ownerId, @PathVariable int petId, HttpServletResponse response) throws IOException {
-		// Get the owner and pet objects
 		Owner owner = this.owners.findById(ownerId);
 		Pet pet = owner.getPet(petId);
 
-		// Get the image file path associated with the pet
-		String imagePath = pet.getPhotoPath(); // Assuming you have a field in the Pet entity to store the image path
+		String imagePath = pet.getPhotoPath();
 		if (imagePath != null) {
-			// Load the image file
-			Path path = Paths.get(imagePath);
+			Path path = Paths.get(imagePath).normalize();
+			if (!path.startsWith(ALLOWED_PHOTO_DIR.toAbsolutePath().normalize())) {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
+				return;
+			}
+			if (!Files.exists(path) || !Files.isRegularFile(path)) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "File not found");
+				return;
+			}
 			byte[] imageBytes = Files.readAllBytes(path);
-
-			URLConnection connection = path.toFile().toURL().openConnection();
-			String mimeType = connection.getContentType();
-			response.setContentType(mimeType);
-
-			// Write the image bytes to the response output stream
+			response.setContentType(mimeTypeForPath(path));
+			response.setHeader("X-Content-Type-Options", "nosniff");
 			try (OutputStream os = response.getOutputStream()) {
 				os.write(imageBytes);
 				os.flush();

@@ -1,6 +1,6 @@
 api:
   url: https://xxx/Contrast
-  api_key: xxx
-  service_key: xxx
+api_key: ${CONTRAST_API_KEY:changeme}
+service_key: ${CONTRAST_SERVICE_KEY:changeme}
   user_name: xxx
 # All other contrast config is done in the docker-compose file. Do not check this file in to git!
