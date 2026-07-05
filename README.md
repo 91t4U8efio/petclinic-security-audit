@@ -18,7 +18,37 @@
 | **Всего** | **42** |
 
 (42 уникальные уязвимости после удаления дубликатов. Log4ShellServer полностью удалён из репозитория.)
-Повторный аудит (6-й раунд) — **CHISTO**, уязвимостей не обнаружено.
+Финальный аудит (7-й раунд) — **CHISTO**, эксплуатируемых уязвимостей не обнаружено.
+
+---
+
+## Финальный аудит (Round 7) — замечания
+
+Аудит проведён 2026-07-05 по OWASP Top 10, security-antipatterns-java, Java CWE. Проверены все категории: injection, access control, secrets, deserialization, file upload, XSS, CSRF, security headers, logging, dependencies.
+
+### Эксплуатируемых уязвимостей: **0**
+
+### Неисправимые / Преднамеренные (документированы)
+| # | Замечание | Тип | Причина |
+|---|-----------|-----|---------|
+| 1 | Hardcoded DB password `petclinic` в 4× `user.sql` | dev-скрипты | Только для локального Docker Dev окружения. Есть WARNING-комментарий. |
+| 2 | `contrast_security.yaml`: placeholder `changeme` | конфигурация | Привязан к конкретному экземпляру Contrast. Допустимо для шаблона. |
+| 3 | `testscript.sh`: hardcoded `admin:password` | тестовый скрипт | Penetration test harness, не часть приложения. |
+| 4 | PII в логах `EmailController` (`owner.email`, `firstName`, `lastName`) | бизнес-требование | Требуется для отладки отправки email. Документировано как intentional. |
+| 5 | XSS: `[[${i}]]` в pagination (3 файла) | Thymeleaf preprocessing | `${i}` — integer loop counter, не user input. |
+| 6 | CSRF отключён для `/registerEmail` | архитектура | Service-to-service с Basic Auth. |
+| 7 | `System.out.printf` в `WelcomeController` | код | Не влияет на безопасность, только на наблюдаемость. |
+
+### Low / Nice-to-have
+| # | Замечание | Рекомендация |
+|---|-----------|-------------|
+| 1 | H2 version в WebApplication наследуется от Spring Boot 3.1.3 (~2.1.214) | Добавить `<h2.version>2.3.232</h2.version>` в properties |
+| 2 | EmailService использует Spring Boot 2.7.18 + Java 1.8 | Обновить до Spring Boot 3.x и Java 17 |
+| 3 | Font-Awesome 4.7.0 (2017) | Обновить до 6.x |
+| 4 | No HSTS header | Добавить `.httpStrictTransportSecurity()` в SecurityConfig |
+| 5 | CookieCsrfTokenRepository default (HttpOnly=false) | Передать `CookieCsrfTokenRepository.withHttpOnlyFalse()` (для SPA) или заменить на `withHttpOnlyTrue()` |
+| 6 | EmailService: нет security headers | Добавить CSP, nosniff, XSS protection |
+| 7 | No magic-byte validation for file uploads | Добавить проверку сигнатуры файла (image magic bytes) |
 
 ---
 
